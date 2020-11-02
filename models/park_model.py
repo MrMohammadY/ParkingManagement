@@ -1,15 +1,17 @@
 class Park:
     parking_counter = 0  # for create number of parking and create unit code
 
-    def __init__(self, name, address, capacity):
+    def __init__(self, name, address, capacity, price):
         """
         Set attribute for parking
         :param name: parking name
         :param address: parking address
         :param capacity: parking opacity
+        :param capacity: parking price per minute 
         """
         self.parking_id = Park.parking_counter + 1  # create a unit code for parkings
         self.parking_name = name
+        self.price_per_minute = price
         self.parking_address = address
         self.parking_capacity = capacity
         self.park_place = dict()
@@ -76,3 +78,10 @@ class Park:
         :return: number of free place
         """
         return list_of_free_park_place[0]
+
+    def update_price_per_minute(self, price):
+        """
+        take new price and update price_per_minute
+        :param price: new price
+        """
+        self.price_per_minute = price
