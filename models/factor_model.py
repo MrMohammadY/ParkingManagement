@@ -11,8 +11,8 @@ class Factor:
         self.park = park
         self.car = car
 
-        # position_park: car position in parking
-        self.position_park = self.park.find_free_park_place()
+        # position_park: car position in parking.
+        self.position_park = self.park.find_free_park_place(self.park.report_free_park_place())
 
         # datetime_in: register car check in date time.
         self.datetime_in = datetime.now()
@@ -20,14 +20,37 @@ class Factor:
         # datetime_out: register car check out date time.
         self.datetime_out = None
 
+        # total time a car exist in a specific parking.
+        self.total_time_exist_in_parking = 0
+
         # car_plaque: register plaque of car
         self.car_plaque = self.car.plaque
 
-        # price_of_factor: total price when check out
+        # price_of_factor: total price when check out.
         self.price_of_factor = 0
 
-        # is_out: if car exit or not
+        # is_out: if car exit or not.
         self.is_out = False
+
+        # update list of free park place based on cars check in.
+        self.park.update_list_of_free_park_place(self.position_park, self.car_plaque)
+
+    def __str__(self):
+        # decorate is a * frame for top and bottom receipt.
+        decorate = '*' * 60
+
+        # text of body receipt or text main of factor
+        print_factor = f'{decorate}\n' \
+            f'*\t Car plaque is: {self.car_plaque}\n' \
+            f'*\t Car park place is: {self.position_park}\n' \
+            f'*\t Check in Date Time: {self.datetime_in}\n' \
+            f'*\t Check out Date Time: {self.datetime_out}\n' \
+            f'*\t Number of minutes you exist in parking: {self.total_time_exist_in_parking}\n' \
+            f'*\t Price per Minutes in this parking: {self.park.price_per_minute}\n' \
+            f'*\t Total price is: {self.price_of_factor}\n' \
+            f'{decorate}'
+
+        return print_factor
 
     def __calculate_price_of_factor(self):
         """
@@ -42,10 +65,11 @@ class Factor:
         pure_min = self.datetime_out - self.datetime_in
 
         # calculate number of minutes that car exist in parking
-        total_time_in_parking = int(pure_min.total_seconds() / 60)
+        # and update total_time_exist_in_parking object attr
+        self.total_time_exist_in_parking = int(pure_min.total_seconds() / 60)
 
         # calculate total price based on total_time_in_parking and price_per_min
-        total_price = price_per_min * total_time_in_parking
+        total_price = price_per_min * self.total_time_exist_in_parking
 
         return total_price
 
