@@ -1,5 +1,6 @@
 class Park:
-    parking_counter = 0  # for create number of parking and create unit code
+    # for create number of parking and create unit code
+    parking_counter = 0
 
     def __init__(self, name, address, capacity, price):
         """
@@ -35,6 +36,20 @@ class Park:
         # parking counter for counting parking
         Park.parking_counter += 1
 
+    def __str__(self):
+        # decorate is a * frame for top and bottom parking info.
+        decorate = '*' * 60
+
+        # text of body parking info
+        print_parking_info = f'{decorate}\n' \
+            f'*\t Parking ID: {self.parking_id}\n' \
+            f'*\t Parking Name: {self.parking_name}\n' \
+            f'*\t Parking Capacity: {self.parking_name}\n' \
+            f'*\t Parking Address: {self.parking_address}\n' \
+            f'{decorate}'
+
+        return print_parking_info
+
     def is_full(self):
         """
         Checking that the parking lot is full?
@@ -67,6 +82,11 @@ class Park:
                 list_of_busy_park_place.append(key)
 
         return list_of_busy_park_place
+
+    def update_list_of_free_park_place(self, position_park, plaque):
+        for k, v in self.park_place.items():
+            if position_park == k:
+                self.park_place[k] = [False, plaque]
 
     def show_information_about_busy_park_place(self, list_of_busy_park_place,
                                                number_busy_park_place):
@@ -101,3 +121,4 @@ class Park:
         :param price: new price
         """
         self.price_per_minute = price
+
