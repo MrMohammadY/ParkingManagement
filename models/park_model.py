@@ -9,16 +9,30 @@ class Park:
         :param capacity: parking opacity
         :param capacity: parking price per minute 
         """
-        self.parking_id = Park.parking_counter + 1  # create a unit code for parkings
+
+        # create a unit code for parking
+        self.parking_id = Park.parking_counter + 1
+
+        # set parking name
         self.parking_name = name
+
+        # set price per minute for parking
         self.price_per_minute = price
+
+        # set parking address
         self.parking_address = address
+
+        # set parking capacity like : 250
         self.parking_capacity = capacity
+
+        # set dictionary for any space of parking capacity like: {1:[True],...}
         self.park_place = dict()
 
+        # append to dict space of parking capacity and
         for i in range(1, self.parking_capacity + 1):
             self.park_place[i] = [True]
 
+        # parking counter for counting parking
         Park.parking_counter += 1
 
     def is_full(self):
@@ -30,6 +44,7 @@ class Park:
 
     def report_free_park_place(self):
         """
+        check self.parking_place and if place is True(free) append to list
         :return: list of free park place
         """
         list_of_free_park_place = list()
@@ -42,6 +57,7 @@ class Park:
 
     def report_busy_park_place(self):
         """
+        check self.parking_place and if place is False(busy) append to list
         :return: list of busy park place
         """
         list_of_busy_park_place = list()
