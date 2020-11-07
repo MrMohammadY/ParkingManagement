@@ -1,6 +1,10 @@
+import pickle
+import json
+from bson.json_util import loads, dumps
+
+
 class Park:
     # for create number of parking and create unit code
-    parking_counter = 0
 
     def __init__(self, name, address, capacity, price):
         """
@@ -12,8 +16,7 @@ class Park:
         """
 
         # create a unit code for parking
-        self.parking_id = Park.parking_counter + 1
-
+        self.parking_id = None
         # set parking name
         self.parking_name = name
 
@@ -28,13 +31,11 @@ class Park:
 
         # set dictionary for any space of parking capacity like: {1:[True],...}
         self.park_place = dict()
-
         # append to dict space of parking capacity and
         for i in range(1, self.parking_capacity + 1):
             self.park_place[i] = [True]
 
         # parking counter for counting parking
-        Park.parking_counter += 1
 
     def __str__(self):
         # decorate is a * frame for top and bottom parking info.
@@ -42,11 +43,12 @@ class Park:
 
         # text of body parking info
         print_parking_info = f'{decorate}\n' \
-            f'*\t Parking ID: {self.parking_id}\n' \
-            f'*\t Parking Name: {self.parking_name}\n' \
-            f'*\t Parking Capacity: {self.parking_name}\n' \
-            f'*\t Parking Address: {self.parking_address}\n' \
-            f'{decorate}'
+                             f'*\t Parking ID: {self.parking_id}\n' \
+                             f'*\t Parking Name: {self.parking_name}\n' \
+                             f'*\t Parking Capacity: {self.parking_capacity}\n' \
+                             f'*\t Parking Address: {self.parking_address}\n' \
+                             f'*\t Parking Price: {self.price_per_minute}\n' \
+                             f'{decorate}'
 
         return print_parking_info
 
@@ -83,10 +85,14 @@ class Park:
 
         return list_of_busy_park_place
 
-    def update_list_of_free_park_place(self, position_park, plaque):
+    def update_list_of_free_park_place(self, position_park, plaque, is_out):
         for k, v in self.park_place.items():
-            if position_park == k:
-                self.park_place[k] = [False, plaque]
+            if is_out is False:
+                if position_park == k:
+                    self.park_place[k] = [False, plaque]
+            elif is_out:
+                if position_park == k:
+                    self.park_place[k] = [True]
 
     def show_information_about_busy_park_place(self, list_of_busy_park_place,
                                                number_busy_park_place):
@@ -122,3 +128,30 @@ class Park:
         """
         self.price_per_minute = price
 
+
+#parking = Park('Atlas', 'Iran', 5, 50)
+
+#data = json.dumps(parking.__dict__)
+#ser = loads(data)
+# collection.insert_one(ser)
+#data = collection.find_one()
+#print(dumps(data))
+#data['parking_id'] = 2
+#print(data)
+
+'''
+def save_object(obj, filename):
+    with open(filename, 'wb') as output:  # Overwrites any existing file.
+        pickle.dump(obj, output, pickle.HIGHEST_PROTOCOL)
+
+parking_1 = Park('MMD', 'sdasd', 20, 100)
+parking_2 = Park('atlas', 'ge', 20, 10)
+
+save_object(parking_1, f'{parking_1.parking_name}.pkl')
+save_object(parking_2, f'{parking_2.parking_name}.pkl')
+
+
+with open('atlas.pkl', 'rb') as input:
+    p = pickle.load(input)
+    print(p)
+'''
