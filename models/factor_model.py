@@ -12,8 +12,7 @@ class Factor:
         self.car = car
 
         # position_park: car position in parking.
-        self.position_park = self.park.find_free_park_place(
-            self.park.report_free_park_place())
+        self.position_park = self.park.find_free_park_place()
 
         # datetime_in: register car check in date time.
         self.datetime_in = datetime.now()

@@ -1,10 +1,9 @@
-import pickle
-import json
-from bson.json_util import loads, dumps
+# import pickle
+# import json
+# from bson.json_util import loads, dumps
 
 
 class Park:
-    # for create number of parking and create unit code
 
     def __init__(self, name, address, capacity, price):
         """
@@ -15,8 +14,6 @@ class Park:
         :param capacity: parking price per minute 
         """
 
-        # create a unit code for parking
-        self.parking_id = None
         # set parking name
         self.parking_name = name
 
@@ -35,15 +32,12 @@ class Park:
         for i in range(1, self.parking_capacity + 1):
             self.park_place[i] = [True]
 
-        # parking counter for counting parking
-
     def __str__(self):
         # decorate is a * frame for top and bottom parking info.
         decorate = '*' * 60
 
         # text of body parking info
         print_parking_info = f'{decorate}\n' \
-                             f'*\t Parking ID: {self.parking_id}\n' \
                              f'*\t Parking Name: {self.parking_name}\n' \
                              f'*\t Parking Capacity: {self.parking_capacity}\n' \
                              f'*\t Parking Address: {self.parking_address}\n' \
@@ -113,13 +107,17 @@ class Park:
         else:
             print('This position is free!')
 
-    def find_free_park_place(self, list_of_free_park_place):
+    def find_free_park_place(self):
         """
         take list of free place and return first free place to Factor
-        :param list_of_free_park_place: take list of free place
         :return: number of free place
         """
-        return list_of_free_park_place[0]
+
+        if not self.is_full():
+            return self.report_free_park_place()[0]
+        return None
+
+        # return list_of_free_park_place[0]
 
     def update_price_per_minute(self, price):
         """
@@ -127,31 +125,3 @@ class Park:
         :param price: new price
         """
         self.price_per_minute = price
-
-
-#parking = Park('Atlas', 'Iran', 5, 50)
-
-#data = json.dumps(parking.__dict__)
-#ser = loads(data)
-# collection.insert_one(ser)
-#data = collection.find_one()
-#print(dumps(data))
-#data['parking_id'] = 2
-#print(data)
-
-'''
-def save_object(obj, filename):
-    with open(filename, 'wb') as output:  # Overwrites any existing file.
-        pickle.dump(obj, output, pickle.HIGHEST_PROTOCOL)
-
-parking_1 = Park('MMD', 'sdasd', 20, 100)
-parking_2 = Park('atlas', 'ge', 20, 10)
-
-save_object(parking_1, f'{parking_1.parking_name}.pkl')
-save_object(parking_2, f'{parking_2.parking_name}.pkl')
-
-
-with open('atlas.pkl', 'rb') as input:
-    p = pickle.load(input)
-    print(p)
-'''
