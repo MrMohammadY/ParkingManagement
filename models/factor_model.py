@@ -1,4 +1,6 @@
 from datetime import datetime
+import json
+from bson.json_util import loads
 
 
 class Factor:
@@ -36,9 +38,10 @@ class Factor:
         # update list of free park place based on cars check in.
         self.park.update_list_of_free_park_place(self.position_park,
                                                  self.car_plaque, self.is_out)
+        self.serialize = None
 
-    def __dict__(self):
-        return {
+    def serialize_information(self):
+        data = {
             'position_park': self.position_park,
             'datetime_in': str(self.datetime_in),
             'datetime_out': self.datetime_out,
@@ -47,6 +50,10 @@ class Factor:
             'price_of_factor': self.price_of_factor,
             'is_out': self.is_out
         }
+
+        json_data = json.dumps(data)
+        serialize = loads(json_data)
+        self.serialize = serialize
 
     def __str__(self):
         # decorate is a * frame for top and bottom receipt.

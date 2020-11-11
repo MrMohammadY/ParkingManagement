@@ -12,3 +12,11 @@ class Car:
         self.model = model
         self.company = company
         self.color = color
+
+    def confirm_car_plaque(self):
+        confirm_plaque = input(f'Car Plaque is: {self.plaque}'
+                               f'\n Are You Sure(Y/N) ? ').strip()
+        if confirm_plaque in ('Y', 'y'):
+            return True
+        else:
+            return False

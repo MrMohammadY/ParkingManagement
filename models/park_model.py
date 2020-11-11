@@ -1,6 +1,5 @@
-import pickle
 import json
-from bson.json_util import loads, dumps
+from bson.json_util import loads
 
 
 class Park:
@@ -12,11 +11,8 @@ class Park:
         :param name: parking name
         :param address: parking address
         :param capacity: parking opacity
-        :param capacity: parking price per minute 
+        :param capacity: parking price per minute
         """
-
-        # create a unit code for parking
-        self.parking_id = None
         # set parking name
         self.parking_name = name
 
@@ -35,7 +31,20 @@ class Park:
         for i in range(1, self.parking_capacity + 1):
             self.park_place[i] = [True]
 
+        self.serialize = None
         # parking counter for counting parking
+
+    def serialize_information(self):
+        data = {
+            'ParkingName': self.parking_name,
+            'ParkingAddress': self.parking_address,
+            'ParkingCapacity': self.parking_capacity,
+            'ParkPlace': self.park_place,
+            'ParkingPrice': self.price_per_minute
+        }
+        json_data = json.dumps(data)
+        serialize = loads(json_data)
+        self.serialize = serialize
 
     def __str__(self):
         # decorate is a * frame for top and bottom parking info.
@@ -43,7 +52,6 @@ class Park:
 
         # text of body parking info
         print_parking_info = f'{decorate}\n' \
-                             f'*\t Parking ID: {self.parking_id}\n' \
                              f'*\t Parking Name: {self.parking_name}\n' \
                              f'*\t Parking Capacity: {self.parking_capacity}\n' \
                              f'*\t Parking Address: {self.parking_address}\n' \
@@ -128,30 +136,3 @@ class Park:
         """
         self.price_per_minute = price
 
-
-#parking = Park('Atlas', 'Iran', 5, 50)
-
-#data = json.dumps(parking.__dict__)
-#ser = loads(data)
-# collection.insert_one(ser)
-#data = collection.find_one()
-#print(dumps(data))
-#data['parking_id'] = 2
-#print(data)
-
-'''
-def save_object(obj, filename):
-    with open(filename, 'wb') as output:  # Overwrites any existing file.
-        pickle.dump(obj, output, pickle.HIGHEST_PROTOCOL)
-
-parking_1 = Park('MMD', 'sdasd', 20, 100)
-parking_2 = Park('atlas', 'ge', 20, 10)
-
-save_object(parking_1, f'{parking_1.parking_name}.pkl')
-save_object(parking_2, f'{parking_2.parking_name}.pkl')
-
-
-with open('atlas.pkl', 'rb') as input:
-    p = pickle.load(input)
-    print(p)
-'''

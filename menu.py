@@ -1,40 +1,33 @@
 import json
-from models import Car, Factor, Park
-from mongodb_connection import sing_up_check_users, create_database_user, \
-    log_in_check_exist_username, client
-from bson.json_util import loads, dumps
+from models import Car, Factor, Park, SingUp, LogIn
+from config import client
+from bson.json_util import loads
 from datetime import datetime
 
 decorate = '*' * 60
 
 
-def confirm_car_plaque(car_plaque):
-    confirm_plaque = input(f'Car Plaque is: {car_plaque}'
-                           f'\n Are You Sure(Y/N) ? ').strip()
-    if confirm_plaque in ('Y', 'y'):
-        return True
-    else:
-        create_factor()
-
-
 def create_factor(data, username):
     db = client[f'{username}']
     collection = db[f'{username}_DATA']
-    parking = Park(data['parking_name'], data['parking_address'],
-                   data['parking_capacity'], data['price_per_minute'])
-    parking.park_place = data['park_place']
+    parking = Park(data['ParkingName'], data['ParkingAddress'],
+                   data['ParkingCapacity'], data['ParkingPrice'])
+    parking.park_place = data['ParkPlace']
+
     if not parking.is_full():
         car_plaque = input('Please Enter Your Car Plaque: ').strip()
-
-        if confirm_car_plaque(car_plaque):
-            # return car_plaque
-            car = Car(car_plaque)
+        car = Car(car_plaque)
+        if car.confirm_car_plaque():
             factor = Factor(parking, car)
+            factor.serialize_information()
             factor_collection = db[f'{username}_FACTOR']
-            factor_collection.insert_one(loads(json.dumps(factor.__dict__())))
+            factor_collection.insert_one(factor.serialize)
             print(parking.park_place)
-            collection.update_one({}, {'$set': {'park_place': parking.park_place}})
+            collection.update_one({},
+                                  {'$set': {'ParkPlace': parking.park_place}})
             return is_valid_authentication(username, data)
+        else:
+            create_factor(data, username)
     else:
         print('Parking is full')
         return is_valid_authentication(username, data)
@@ -44,26 +37,33 @@ def check_out(username):
     db = client[f'{username}']
     parking_collection = db[f'{username}_DATA']
     data = parking_collection.find_one()
-    parking = Park(data['parking_name'], data['parking_address'],
-                   data['parking_capacity'], data['price_per_minute'])
-    parking.park_place = data['park_place']
+    parking = Park(data['ParkingName'], data['ParkingAddress'],
+                   data['ParkingCapacity'], data['ParkingPrice'])
+    parking.park_place = data['ParkPlace']
     car_plaque = input('Please Enter Car Plaque To Check Out: ').strip()
-    if confirm_car_plaque(car_plaque):
-        car = Car(car_plaque)
+    car = Car(car_plaque)
+    if car.confirm_car_plaque():
         db = client[f'{username}']
         collection = db[f'{username}_FACTOR']
-        data = collection.find_one({'$and': [{'car_plaque': car_plaque}, {'is_out': False}]})
+        data = collection.find_one(
+            {'$and': [{'car_plaque': car_plaque}, {'is_out': False}]})
         if data:
             factor = Factor(parking, car)
-            date_time_obj = datetime.strptime(data['datetime_in'], '%Y-%m-%d %H:%M:%S.%f')
+            date_time_obj = datetime.strptime(data['datetime_in'],
+                                              '%Y-%m-%d %H:%M:%S.%f')
             factor.datetime_in = date_time_obj
             factor.car_plaque = data['car_plaque']
-            factor.total_time_exist_in_parking = data['total_time_exist_in_parking']
+            factor.total_time_exist_in_parking = data[
+                'total_time_exist_in_parking']
             factor.position_park = data['position_park']
             factor.check_out()
             print(factor)
-            parking_collection.update_one({}, {'$set': {'park_place': parking.park_place}})
-            collection.update_one({'$and': [{'car_plaque': car_plaque}, {'is_out': False}]}, {'$set': {'is_out': True}})
+            parking_collection.update_one({}, {
+                '$set': {'ParkPlace': parking.park_place}})
+            collection.update_one(
+                {'$and': [{'car_plaque': car_plaque}, {'is_out': False}]},
+                {'$set': {'is_out': True}})
+            return is_valid_authentication(username)
 
         else:
             print('This Plaque is nit exist!')
@@ -90,9 +90,10 @@ def is_valid_authentication(username, data):
 def log_in():
     username = input('Please Enter Your Username: ').strip()
     password = input('Please Enter Your Password: ')
-    data = log_in_check_exist_username(username, password)
-    if data is not False:
-        return is_valid_authentication(username, data)
+    login = LogIn(username, password)
+
+    if login.check_username():
+        return is_valid_authentication(login.UserName, login.return_data())
     else:
         return main_menu()
 
@@ -119,23 +120,38 @@ def create_parking():
         temp_parking = Park(
             parking_name, parking_address, parking_capacity, parking_price
         )
-        json_parking_data = json.dumps(temp_parking.__dict__)
-        serialize_parking_data = loads(json_parking_data)
-        return serialize_parking_data
+        temp_parking.serialize_information()
+        return temp_parking.serialize
     else:
         return create_parking()
 
 
 def sing_up():
+    first_name = input('Please Enter Your Name: ')
+    family_name = input('Please Enter Family: ')
     username = input('Please Enter Your Username: ').strip()
     password = input('Please Enter Your Password: ')
     confirm_password = input('Please Confirm Your Password: ')
-    check = sing_up_check_users(username, password, confirm_password)
-    if check:
+    email = input('Please Enter Email: ')
+    phone = input('Please Enter Phone: ')
+
+    new_user = SingUp(
+        first_name, family_name, username, password, confirm_password, email,
+        phone
+    )
+    if new_user.create_user():
         data = create_parking()
-        create_database_user(username, data)
-        print('You Can Now Login.')
-        return main_menu()
+
+        try:
+            new_user.insert_user_to_mongodb_users()
+            new_user.create_user_database(data)
+        except BaseException:
+            print('Some Problems Occurred In Your Sing Up Process,'
+                  ' Please Try Later!')
+            new_user.delete_user()
+            return sing_up()
+        return sing_up()
+
     else:
         return sing_up()
 
